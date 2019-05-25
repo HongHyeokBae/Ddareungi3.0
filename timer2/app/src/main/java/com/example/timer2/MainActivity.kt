@@ -1,5 +1,8 @@
 package com.example.timer2
 
+import android.media.Ringtone
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.support.v7.app.AppCompatActivity
@@ -18,6 +21,9 @@ class MainActivity : AppCompatActivity() {
     private var timerLengthSeconds=0L
     private var timerState=TimerState.Stopped
     private var secondsRemaining=0L
+    private lateinit var notification:Uri
+    private  lateinit var  ring:Ringtone
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +102,10 @@ class MainActivity : AppCompatActivity() {
             override fun onTick(millisUntilFinished: Long) {
                 secondsRemaining = millisUntilFinished / 1000
                 updateCountdownUI()
+                if(secondsRemaining.toInt()==15){
+                //    Toast.makeText(applicationContext, "15min left",Toast.LENGTH_SHORT).show()
+                    startSound()
+                }
             }
         }.start()
 
@@ -136,4 +146,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun startSound(){
+        notification= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        ring=RingtoneManager.getRingtone(applicationContext,notification)
+        ring.play()
+    }
 }

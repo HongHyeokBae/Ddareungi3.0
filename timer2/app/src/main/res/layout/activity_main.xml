@@ -6,14 +6,16 @@
         android:layout_width="match_parent">
 
     <Spinner
-             android:spinnerMode="dropdown"
+             android:spinnerMode="dialog"
             android:backgroundTint="#eee"
             android:textAlignment="center"
+             android:prompt="@string/prompt"
             android:entries="@array/spin_arr"
             android:layout_width="360dp"
             android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:layout_height="70dp"
+             android:background="@drawable/timerspinnerlayout"
             android:id="@+id/timerSpinner"
             android:layout_marginTop="30dp"
     />
