@@ -1,34 +1,46 @@
 package com.example.ddareungi.data
 
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 /**
  * Todo: will replace [BikeStation] with this class
  */
+@Entity(tableName = "Bookmarks")
 data class StationRe(
+    @PrimaryKey
     @SerializedName("stationId")
-    val stationId: String,
+    var stationId: String,
 
     @SerializedName("stationName")
-    val stationName: String,
+    var stationName: String,
 
     @SerializedName("rackTotCnt")
-    val rackTotCnt: String,
+    @Ignore
+    var rackTotCnt: String = "0",
 
     @SerializedName("parkingBikeTotCnt")
-    private var parkingBikeTotCnt: String,
+    @Ignore
+    var parkingBikeTotCnt: String = "0",
 
     @SerializedName("parkingQRBikeCnt")
-    private var parkingQRBikeCnt: String,
+    @Ignore
+    var parkingQRBikeCnt: String = "0",
 
     @SerializedName("stationLatitude")
-    private val stationLatitude: String = "0.0",
+    @Ignore
+    val stationLatitude: String = "0.0",
 
     @SerializedName("stationLongitude")
-    private val stationLongitude: String = "0.0",
+    @Ignore
+    val stationLongitude: String = "0.0",
 
     var bookmarked:Boolean = false
 ) {
+    constructor(): this("", "")
+
     fun getParkingBikeCnt(): Int = parkingBikeTotCnt.toInt() + parkingQRBikeCnt.toInt()
     fun getLatitude(): Double = stationLatitude.toDouble()
     fun getLongitude(): Double = stationLongitude.toDouble()
