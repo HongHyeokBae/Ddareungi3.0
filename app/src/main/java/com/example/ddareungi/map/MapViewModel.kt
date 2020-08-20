@@ -4,14 +4,16 @@ import android.app.Application
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.*
-import com.example.ddareungi.BasicApp
+import com.example.ddareungi.App
 import com.example.ddareungi.DataRepository
 import com.example.ddareungi.Event
 import com.example.ddareungi.data.BikeStation
 import com.example.ddareungi.data.Park
 import com.example.ddareungi.data.Result
 import com.example.ddareungi.viewmodel.BikeStationViewModel
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.model.Place
 import kotlinx.coroutines.launch
@@ -299,7 +301,7 @@ class MapViewModel(private val mRepository: DataRepository) : ViewModel() {
         class Factory(application: Application)
             : ViewModelProvider.NewInstanceFactory() {
 
-            private val mRepository = (application as BasicApp).getDataRepository()
+            private val mRepository = (application as App).getDataRepository()
 
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
