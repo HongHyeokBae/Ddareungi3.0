@@ -1,7 +1,10 @@
 package com.example.ddareungi.di
 
+import android.content.Context
+import androidx.room.Room
 import com.example.ddareungi.api.BikeStationService
 import com.example.ddareungi.api.ParkService
+import com.example.ddareungi.data.AppDatabase
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -50,5 +53,12 @@ class AppModule {
     @Provides
     fun provideOkHttpClient(interceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder().addInterceptor(interceptor).build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideAppDatabase(context: Context): AppDatabase {
+        return Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
+            .build()
     }
 }

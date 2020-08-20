@@ -22,6 +22,6 @@ class App: DaggerApplication() {
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        return DaggerApplicationComponent.factory().create()
+        return DaggerApplicationComponent.factory().create(applicationContext)
     }
 }

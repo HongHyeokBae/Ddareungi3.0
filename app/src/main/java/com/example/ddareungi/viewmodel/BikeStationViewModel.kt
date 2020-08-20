@@ -2,7 +2,7 @@ package com.example.ddareungi.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.example.ddareungi.BasicApp
+import com.example.ddareungi.App
 import com.example.ddareungi.DataRepository
 import com.example.ddareungi.Event
 import com.example.ddareungi.data.BikeStation
@@ -189,7 +189,7 @@ class BikeStationViewModel(private val mRepository: DataRepository): ViewModel()
         class Factory(application: Application)
             : ViewModelProvider.NewInstanceFactory() {
 
-            private val mRepository = (application as BasicApp).getDataRepository()
+            private val mRepository = (application as App).getDataRepository()
 
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
