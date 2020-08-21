@@ -8,11 +8,11 @@ import android.widget.ProgressBar
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ddareungi.R
-import com.example.ddareungi.data.BikeStation
+import com.example.ddareungi.data.StationRe
 
 
 @BindingAdapter("app:items")
-fun setItems(listView: RecyclerView, items: List<BikeStation>) {
+fun setItems(listView: RecyclerView, items: List<StationRe>) {
     ((listView.adapter) as BookmarksAdapter).submitList(items)
 }
 

@@ -34,7 +34,7 @@ class SwipeToDeleteCallback : ItemTouchHelper.SimpleCallback {
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         val position = viewHolder.adapterPosition
         viewModel.deleteBookmarkStation(position)
-        adapter.submitList(viewModel.bikeStations.value)
+//        adapter.submitList(viewModel.bikeStations.value!!)
     }
 
     override fun onChildDraw(

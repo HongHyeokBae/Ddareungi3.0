@@ -12,11 +12,11 @@
             name="fabClickListener"
             type="android.view.View.OnClickListener" />
         <variable
-            name="bikeStationVM"
-            type="com.example.ddareungi.viewmodel.BikeStationViewModel" />
-        <variable
             name="weatherVM"
             type="com.example.ddareungi.viewmodel.WeatherViewModel" />
+        <variable
+            name="mainVM"
+            type="com.example.ddareungi.viewmodel.MainViewModel" />
 
     </data>
 
@@ -31,7 +31,7 @@
             android:layout_height="match_parent"
             android:layout_marginTop="24dp"
             app:wDataLoading="@{weatherVM.dataLoading}"
-            app:bDataLoading="@{bikeStationVM.dataLoading}">
+            app:bDataLoading="@{mainVM.dataLoading}">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -45,7 +45,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/weatherLL"
-                    android:visibility="@{bikeStationVM.empty ? View.GONE : View.VISIBLE}">
+                    android:visibility="@{mainVM.bookmarkEmpty ? View.GONE : View.VISIBLE}">
 
                     <TextView
                         android:id="@+id/station_label_tv"
@@ -70,7 +70,6 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/station_label_tv"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        app:items="@{bikeStationVM.bookmarkStations}"
                         tools:visibility="visible"
                         tools:listitem="@layout/bookmark_single_item"/>
 
@@ -86,7 +85,7 @@
                 android:orientation="vertical"
                 android:layout_gravity="center"
                 android:layout_marginBottom="48dp"
-                android:visibility="@{bikeStationVM.empty ? View.VISIBLE : View.GONE}"
+                android:visibility="@{mainVM.bookmarkEmpty ? View.VISIBLE : View.GONE}"
                 tools:visibility="gone">
 
                 <ImageView
@@ -114,7 +113,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:indeterminateTint="@color/grey"
-            app:bDataLoading="@{bikeStationVM.dataLoading}"
+            app:bDataLoading="@{mainVM.dataLoading}"
             app:wDataLoading="@{weatherVM.dataLoading}"
             tools:visibility="gone"/>
 

@@ -4,11 +4,12 @@ package com.example.ddareungi.bookmark
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -16,11 +17,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.ddareungi.EventObserver
 import com.example.ddareungi.MainActivity
 import com.example.ddareungi.R
+import com.example.ddareungi.data.StationRe
 import com.example.ddareungi.databinding.BookmarkFragBinding
-import com.example.ddareungi.map.MapFragment
 import com.example.ddareungi.utils.NetworkUtils
 import com.example.ddareungi.utils.setupSnackBar
-import com.example.ddareungi.viewmodel.BikeStationViewModel
 import com.example.ddareungi.viewmodel.WeatherViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
@@ -29,25 +29,21 @@ import java.io.IOException
 import java.util.*
 
 
-class BookmarkFragment : Fragment() {
+class BookmarkFragment : Fragment(), BookmarksAdapter.BookmarkViewHolder.Delegate {
 
-    private lateinit var bsViewModel: BikeStationViewModel
-
-    private lateinit var weatherViewModel: WeatherViewModel
 
     lateinit var binding: BookmarkFragBinding
 
-    lateinit var listAdapter: BookmarksAdapter
+    private val bookmarksAdapter by lazy { BookmarksAdapter(this) }
 
-    lateinit var itemTouchHelper: ItemTouchHelper
+    private lateinit var itemTouchHelper: ItemTouchHelper
+
+    private val mainViewModel = (requireActivity() as MainActivity).mainViewModel
+    private lateinit var weatherViewModel: WeatherViewModel
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-
-        bsViewModel = activity?.run {
-            ViewModelProviders.of(this)[BikeStationViewModel::class.java]
-        } ?: throw Exception("Invalid Activity")
 
         weatherViewModel = activity?.run {
             ViewModelProviders.of(this)[WeatherViewModel::class.java]
@@ -55,7 +51,7 @@ class BookmarkFragment : Fragment() {
 
          binding = BookmarkFragBinding.inflate(inflater, container, false)
             .apply {
-                bikeStationVM = bsViewModel
+                mainVM = mainViewModel
                 weatherVM = weatherViewModel
             }
 
@@ -67,48 +63,58 @@ class BookmarkFragment : Fragment() {
 
         binding.lifecycleOwner = this.viewLifecycleOwner
 
-        setupListAdapter()
+        initBookmarksAdapter()
+        initObserver()
         setupRefreshFab()
-        setupSnackbar()
+        initSnackBar()
 
         if(!weatherViewModel.loadSucceed.value!!) {
             getLocationAndWeather()
         }
-
-        bsViewModel.navigateToMapEvent.observe(this, EventObserver {
-            val args = Bundle()
-
-            // 클릭한 [stationId]를 인자로 [MapFragment]에 전달
-            args.putString(MapFragment.CLICKED_IN_BOOKMARK_FRAG_TAG, it)
-            (activity as MainActivity).setMapFragInstance(it)
-            val mapFrag = (activity as MainActivity).mapFrag
-            fragmentManager!!.beginTransaction().replace(R.id.frag_container, mapFrag!!).commit()
-        })
-
     }
 
-    private fun setupListAdapter() {
-        val viewModel = binding.bikeStationVM
-        if(viewModel != null) {
-            listAdapter = BookmarksAdapter(viewModel)
-            itemTouchHelper = ItemTouchHelper(SwipeToDeleteCallback(viewModel, listAdapter, 0, ItemTouchHelper.LEFT))
-            binding.bookmarkRecyclerView.adapter = listAdapter
-            binding.bookmarkRecyclerView
-                .addItemDecoration(DividerItemDecoration(requireContext(), RecyclerView.VERTICAL))
-            itemTouchHelper.attachToRecyclerView(binding.bookmarkRecyclerView)
-        } else {
-            Log.v("adapter", "ViewModel not initialized when attempting to set up adapter.")
+    private fun initObserver() {
+        viewLifecycleOwner.apply {
+            mainViewModel.bookmarkedStations.observe(this, Observer {
+                bookmarksAdapter.submitList(it)
+            })
+            mainViewModel.navigateToMapFragEvent.observe(this, EventObserver {
+                (activity as MainActivity).apply {
+                    setMapFragInstance(it)
+                    supportFragmentManager.beginTransaction().replace(R.id.frag_container, mapFragment!!).commit()
+                }
+            })
+
+        }
+    }
+
+    private fun initBookmarksAdapter() {
+//        val viewModel = binding.bikeStationVM
+//        if(viewModel != null) {
+//            itemTouchHelper = ItemTouchHelper(SwipeToDeleteCallback(viewModel, bookmarksAdapter, 0, ItemTouchHelper.LEFT))
+//            binding.bookmarkRecyclerView.adapter = bookmarksAdapter
+//            binding.bookmarkRecyclerView
+//                .addItemDecoration(DividerItemDecoration(requireContext(), RecyclerView.VERTICAL))
+//            itemTouchHelper.attachToRecyclerView(binding.bookmarkRecyclerView)
+//        } else {
+//            Log.v("adapter", "ViewModel not initialized when attempting to set up adapter.")
+//        }
+//        itemTouchHelper = ItemTouchHelper(SwipeToDeleteCallback(viewModel, bookmarksAdapter, 0, ItemTouchHelper.LEFT))
+        with(binding) {
+            bookmarkRecyclerView.adapter = bookmarksAdapter
+            bookmarkRecyclerView.addItemDecoration(DividerItemDecoration(requireContext(), RecyclerView.VERTICAL))
+//            itemTouchHelper.attachToRecyclerView(bookmarkRecyclerView)
         }
     }
 
     private fun setupRefreshFab() {
         binding.setFabClickListener {
             if(NetworkUtils.isNetworkAvailable(requireContext())) {
-                bsViewModel.refresh()
+                mainViewModel.refresh()
                 getLocationAndWeather()
             } else {
                 //show no network snack bar
-                bsViewModel.showSnackbarMessage("현재 네트워크 연결이 없습니다.")
+                mainViewModel.showSnackBarMessage("현재 네트워크 연결이 없습니다.")
             }
         }
     }
@@ -157,8 +163,12 @@ class BookmarkFragment : Fragment() {
         }
     }
 
-    private fun setupSnackbar() {
-        view?.setupSnackBar(this, bsViewModel.snackbarText, Snackbar.LENGTH_LONG)
+    override fun onItemClick(station: StationRe) {
+        mainViewModel.navigateToMapFrag(station.stationId)
+    }
+
+    private fun initSnackBar() {
+        view?.setupSnackBar(this, mainViewModel.snackBarText, Snackbar.LENGTH_LONG)
     }
 
     override fun onResume() {
@@ -166,8 +176,6 @@ class BookmarkFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar!!.show()
         (requireActivity()).appbar_title.text = resources.getText(R.string.title_bookmark_frag)
     }
-
-
 
     companion object {
         fun newInstance() = BookmarkFragment()

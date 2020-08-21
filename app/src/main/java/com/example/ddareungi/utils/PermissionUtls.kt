@@ -19,19 +19,23 @@ package com.example.ddareungi.utils
 import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import android.widget.Toast
 import com.example.ddareungi.R
 
 /**
  * Utility class for access to runtime permissions.
  */
 object PermissionUtils {
+
+    const val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
 
     /**
      * Requests the fine location permission. If a rationale with an additional explanation should
@@ -70,6 +74,10 @@ object PermissionUtils {
         return false
     }
 
+    fun checkPermissionGranted(context: Context, permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
     /**
      * A dialog that displays a permission denied message.
      */
@@ -86,7 +94,7 @@ object PermissionUtils {
                 .create()
         }
 
-        override fun onDismiss(dialog: DialogInterface?) {
+        override fun onDismiss(dialog: DialogInterface) {
             super.onDismiss(dialog)
             if (mFinishActivity) {
                 Toast.makeText(
@@ -151,7 +159,7 @@ object PermissionUtils {
                 .create()
         }
 
-        override fun onDismiss(dialog: DialogInterface?) {
+        override fun onDismiss(dialog: DialogInterface) {
             super.onDismiss(dialog)
             if (mFinishActivity) {
                 Toast.makeText(

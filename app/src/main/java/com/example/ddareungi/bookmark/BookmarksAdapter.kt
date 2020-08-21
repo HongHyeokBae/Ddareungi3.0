@@ -5,50 +5,52 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.ddareungi.data.BikeStation
+import com.example.ddareungi.data.StationRe
 import com.example.ddareungi.databinding.BookmarkSingleItemBinding
-import com.example.ddareungi.viewmodel.BikeStationViewModel
 
 
-class BookmarksAdapter(private val viewModel: BikeStationViewModel)
-    : ListAdapter<BikeStation, BookmarksAdapter.BookmarkViewHolder>(TaskDiffCallback()) {
+class BookmarksAdapter(private val delegate: BookmarkViewHolder.Delegate)
+    : ListAdapter<StationRe, BookmarksAdapter.BookmarkViewHolder>(TaskDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookmarkViewHolder {
-        return BookmarkViewHolder.from(parent)
+        return BookmarkViewHolder.from(parent, delegate)
     }
 
     override fun onBindViewHolder(holder: BookmarkViewHolder, position: Int) {
         val item = getItem(position)
-
-        holder.bind(viewModel, item)
+        holder.bind(item)
     }
 
 
-    class BookmarkViewHolder(private val binding: BookmarkSingleItemBinding)
+    class BookmarkViewHolder(private val binding: BookmarkSingleItemBinding, private val delegate: Delegate)
         : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(viewModel: BikeStationViewModel, item: BikeStation) {
-            binding.bikeStationVM = viewModel
+        interface Delegate {
+            fun onItemClick(station: StationRe)
+        }
+
+        fun bind(item: StationRe) {
             binding.bikeStation = item
+            binding.root.setOnClickListener{ delegate.onItemClick(item) }
             binding.executePendingBindings()
         }
 
         companion object {
-            fun from(parent: ViewGroup?): BookmarkViewHolder {
+            fun from(parent: ViewGroup?, delegate: Delegate): BookmarkViewHolder {
                 val layoutInflater = LayoutInflater.from(parent!!.context)
                 val binding = BookmarkSingleItemBinding.inflate(layoutInflater, parent, false)
 
-                return BookmarkViewHolder(binding)
+                return BookmarkViewHolder(binding, delegate)
             }
         }
     }
 
-    class TaskDiffCallback : DiffUtil.ItemCallback<BikeStation>() {
-        override fun areItemsTheSame(oldItem: BikeStation, newItem: BikeStation): Boolean {
+    class TaskDiffCallback : DiffUtil.ItemCallback<StationRe>() {
+        override fun areItemsTheSame(oldItem: StationRe, newItem: StationRe): Boolean {
             return oldItem.stationId == newItem.stationId
         }
 
-        override fun areContentsTheSame(oldItem: BikeStation, newItem: BikeStation): Boolean {
+        override fun areContentsTheSame(oldItem: StationRe, newItem: StationRe): Boolean {
             return oldItem == newItem
         }
     }

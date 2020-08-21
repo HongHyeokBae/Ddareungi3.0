@@ -3,6 +3,7 @@ package com.example.ddareungi
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.example.ddareungi.bookmark.BookmarkFragment
 import com.example.ddareungi.map.MapFragment
@@ -10,30 +11,29 @@ import com.example.ddareungi.map.MapViewModel
 import com.example.ddareungi.timer.TimerFragment
 import com.example.ddareungi.utils.setupActionBar
 import com.example.ddareungi.viewmodel.BikeStationViewModel
+import com.example.ddareungi.viewmodel.MainViewModel
 import com.example.ddareungi.viewmodel.TimerViewModel
 import com.example.ddareungi.viewmodel.WeatherViewModel
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
 
-    private val mBookmarkFrag: BookmarkFragment = BookmarkFragment.newInstance()
-
-    private val mTimerFrag: TimerFragment = TimerFragment.newInstance()
-
-    private var mMapFrag: MapFragment? = null
-    val mapFrag: MapFragment?
-        get() = mMapFrag
+    private val bookmarkFragment: BookmarkFragment = BookmarkFragment.newInstance()
+    private val timerFragment by lazy { TimerFragment.newInstance() }
+    var mapFragment: MapFragment? = null
 
     private val fm: FragmentManager = supportFragmentManager
 
+    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+
     private lateinit var bikeStationViewModel: BikeStationViewModel
-
     private lateinit var mapViewModel: MapViewModel
-
     private lateinit var weatherViewModel: WeatherViewModel
-
     private lateinit var timerViewModel: TimerViewModel
+
+    val mainViewModel by lazy { ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java] }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 
         // 첫 화면으로 [BookmarkFragment] 설정
         if(fm.findFragmentById(R.id.frag_container) == null) {
-            fm.beginTransaction().add(R.id.frag_container, mBookmarkFrag).commit()
+            fm.beginTransaction().add(R.id.frag_container, bookmarkFragment).commit()
         }
 
     }
@@ -75,14 +75,14 @@ class MainActivity : AppCompatActivity() {
             when(it.itemId) {
                 R.id.bookmark -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.frag_container, mBookmarkFrag).commit()
+                        .replace(R.id.frag_container, bookmarkFragment).commit()
                 }
                 R.id.map -> {
                     setMapFragInstance(null)
-                    fm.beginTransaction().replace(R.id.frag_container, mMapFrag!!).commit()
+                    fm.beginTransaction().replace(R.id.frag_container, mapFragment!!).commit()
                 }
                 R.id.timer -> {
-                    fm.beginTransaction().replace(R.id.frag_container, mTimerFrag).commit()
+                    fm.beginTransaction().replace(R.id.frag_container, timerFragment).commit()
                 }
             }
             true
@@ -108,12 +108,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun setMapFragInstance(stationId: String?) {
-        if(mMapFrag == null) {
-            mMapFrag = MapFragment.newInstance(stationId)
+        if(mapFragment == null) {
+            mapFragment = MapFragment.newInstance(stationId)
         } else {
             val args = Bundle()
             args.putString(MapFragment.CLICKED_IN_BOOKMARK_FRAG_TAG, stationId)
-            mMapFrag!!.arguments = args
+            mapFragment!!.arguments = args
         }
     }
 

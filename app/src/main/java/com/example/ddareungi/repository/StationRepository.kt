@@ -11,7 +11,8 @@ import javax.inject.Singleton
 @Singleton
 class StationRepository @Inject constructor(
     private val bikeStationService: BikeStationService,
-    private val bookmarkStationDao: BookmarkDao) {
+    private val bookmarkStationDao: BookmarkDao
+) {
 
     private fun fetchRealtimeStatus(): Single<Map<String, StationRe>> {
         return bikeStationService.getBikeStations().map { response ->
@@ -30,9 +31,9 @@ class StationRepository @Inject constructor(
     private fun setBookmarkStatus(bikeStations: Map<String, StationRe>): Single<Map<String, StationRe>> {
         return bookmarkStationDao.getAllStations().onErrorReturn { emptyList() }
             .map { bookmarkStations ->
-            bookmarkStations.forEach { bikeStations[it.stationId]?.bookmarked = true }
-            bikeStations
-        }
+                bookmarkStations.forEach { bikeStations[it.stationId]?.bookmarked = true }
+                bikeStations
+            }
     }
 
     fun getBikeStations(): Single<Map<String, StationRe>> {
@@ -43,7 +44,7 @@ class StationRepository @Inject constructor(
 
     fun getBookmarkStations(): Single<Map<String, StationRe>> {
         return bookmarkStationDao.getAllStations().map { stations ->
-            stations.associateBy{ it.stationId }
+            stations.associateBy { it.stationId }
         }
     }
 }
